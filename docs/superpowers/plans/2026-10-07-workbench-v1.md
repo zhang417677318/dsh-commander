@@ -1259,3 +1259,43 @@ git commit -m "feat: compose workbench page with loading and error states"
 | `pnpm build` | 通过，JS 168.13 kB（gzip 53.53 kB）、CSS 21.75 kB（gzip 5.13 kB） |
 | `pnpm e2e` | 4 项全过，视觉基线 `e2e/workbench.spec.ts-snapshots/workbench-1600x900-win32.png` 稳定 |
 | 对比度守卫 | `src/theme/contrast.test.ts` 5 项全过，令牌改动会立刻报警 |
+
+---
+
+## 追加：Electron 桌面外壳（2026-10-07）
+
+v1 验收后又追加了一步，把工作台包成真正的桌面应用。这部分不在原计划的 10 个任务里，是独立的一次开发。
+
+**新增文件**
+
+| 文件 | 职责 |
+|---|---|
+| `electron/main.ts` | 主进程：无边框窗口、IPC 窗口控制、外链交给系统浏览器 |
+| `electron/preload.ts` | 经 `contextBridge` 暴露极小的 `window.dshDesktop` |
+| `src/app/desktop.ts` | 渲染层的类型化访问器，浏览器里返回 `null` |
+| `scripts/dev-desktop.mjs` | 开发启动器：编译主进程 → 起 Vite → 等端口 → 拉起 Electron |
+| `e2e/desktop.spec.ts` | 用 Playwright 的 `_electron` 验证真实窗口 |
+| `pnpm-workspace.yaml` | pnpm 11 的安装脚本白名单 |
+
+**新引入的坑（都已解决）**
+
+1. **Electron 二进制下不来**：postinstall 走 GitHub releases，国内 `fetch failed`。解法是设 `ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/` 再 `pnpm install`。
+2. **pnpm 11 默认拦掉 postinstall**：`electron` 和 `esbuild` 都装了空壳。白名单的键名是 `allowBuilds`（不是文档里常见的 `onlyBuiltDependencies`），写进 `pnpm-workspace.yaml`；交互式 `pnpm approve-builds` 会自动改写这个文件。
+3. **被忽略的构建脚本会让 `pnpm <script>` 直接失败**：pnpm 在跑脚本前会做依赖状态检查，检查失败就中止，表现为 `pnpm typecheck` 报一长串内部堆栈。批准构建后就恢复了。
+4. **`localhost` 与 `127.0.0.1` 不是一回事**：Playwright 的 webServer 用默认 host 起 Vite，在 Node 17+ 上绑到 IPv6 的 `::1`；Electron 去连 `127.0.0.1` 得到的是 `chrome-error://chromewebdata/`（页面全白，但 preload 正常）。已在 `playwright.config.ts` 与 dev 启动器里统一为显式 `--host 127.0.0.1`。
+5. **窗口标题会变**：`App.tsx` 设置的 `document.title` 会被 Electron 当作窗口标题，所以生产标题是「工作台 · AI 编程助手」而不是产品名。e2e 断言按实际行为写。
+
+**视觉基线更新**
+
+窗口控制在浏览器里没有原生能力，改成了禁用态（`opacity: .45`）。这会让工作台的截图基线变化一次，已用 `pnpm e2e -- --update-snapshots` 重新生成并人工比对，随后不带 `--update` 复跑确认稳定。
+
+**桌面化的验收结果**
+
+| 检查 | 结果 |
+|---|---|
+| `pnpm typecheck` | 通过 |
+| `pnpm test` | 11 个文件 / 46 个用例全过 |
+| `pnpm e2e` | 8 项全过（浏览器 4 + Electron 4） |
+| Electron 主进程体积 | main.mjs 2.2 kB、preload.cjs 802 B |
+
+Electron 的四项覆盖：窗口能启动并渲染工作台、三个窗口控制是可用按钮而非死控件、点击最大化真的调用主进程（`isMaximized()` 返回 true 且按钮变成「还原窗口」）、窗口标题跟随视图且窗口可缩放。
