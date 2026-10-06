@@ -85,6 +85,12 @@ textarea {
   box-shadow: var(--sh-2);
 }
 
+/* 右栏卡片：玻璃面板 + 内边距 */
+.panel {
+  padding: 16px;
+  flex: 0 0 auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
