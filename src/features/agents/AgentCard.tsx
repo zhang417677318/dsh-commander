@@ -1,4 +1,5 @@
 import type { Agent, AgentStatus } from '../../domain/types'
+import { CATEGORY_TONE, categoryOf } from './categories'
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
   online: '在线',
@@ -7,9 +8,11 @@ const STATUS_LABEL: Record<AgentStatus, string> = {
 }
 
 export function AgentCard({ agent, hidden }: { agent: Agent; hidden: boolean }) {
+  const tone = CATEGORY_TONE[categoryOf(agent)]
+
   return (
     <article className="agent" hidden={hidden}>
-      <span className="agent-icon" aria-hidden="true">
+      <span className={`agent-icon ${tone}`} aria-hidden="true">
         <svg
           width="18"
           height="18"

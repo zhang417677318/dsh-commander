@@ -1,0 +1,120 @@
+.view {
+  height: 100%;
+  min-height: 0;
+  padding: 18px 22px 20px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 316px;
+}
+.view--full {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+}
+.rightbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+.rightbar::-webkit-scrollbar {
+  width: 8px;
+}
+.rightbar::-webkit-scrollbar-thumb {
+  background: rgba(13, 80, 96, .14);
+  border-radius: var(--r-full);
+}
+
+.wb-status {
+  font-size: var(--fs-14);
+  color: var(--ink-3);
+  padding: 24px 4px;
+}
+.wb-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, .86);
+  border: 1px solid rgba(220, 38, 38, .28);
+  box-shadow: var(--sh-2);
+}
+.wb-error strong {
+  font-size: var(--fs-15);
+  color: #B91C1C;
+}
+.wb-error p {
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.suggest {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, rgba(34, 211, 238, .13), rgba(22, 163, 74, .09));
+  border: 1px solid var(--hair);
+}
+.suggest-ico {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--primary-600);
+  flex: 0 0 auto;
+  box-shadow: var(--sh-1);
+}
+.suggest p {
+  font-size: var(--fs-12);
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+.suggest b {
+  color: var(--primary-600);
+  font-weight: 600;
+}
+
+/* 16:9 桌面（900px 高）也要一屏放下三条消息 */
+@media (min-width: 1121px) and (max-height: 960px) {
+  .view {
+    padding: 12px 20px 14px;
+    gap: 16px;
+  }
+  .workspace {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1360px) {
+  .view {
+    grid-template-columns: minmax(0, 1fr) 288px;
+  }
+}
+@media (max-width: 1120px) {
+  .view {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: auto;
+  }
+  .rightbar {
+    overflow: visible;
+    height: auto;
+  }
+  .workspace {
+    min-height: 640px;
+  }
+}

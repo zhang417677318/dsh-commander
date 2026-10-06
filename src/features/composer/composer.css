@@ -144,3 +144,18 @@
 .agent-dot {
   background: var(--grad-brand);
 }
+
+@media (min-width: 1121px) and (max-height: 960px) {
+  .composer {
+    padding: 8px 20px 10px;
+  }
+  .composer-box {
+    padding: 12px 16px 10px;
+  }
+  .composer-box textarea {
+    min-height: 32px;
+  }
+  .composer-bar {
+    margin-top: 8px;
+  }
+}

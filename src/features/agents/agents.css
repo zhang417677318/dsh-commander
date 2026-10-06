@@ -98,6 +98,11 @@
   color: #fff;
   background: var(--grad-brand);
 }
+.tone-blue { background: linear-gradient(135deg, #60A5FA, #2563EB); }
+.tone-pink { background: linear-gradient(135deg, #F472B6, #DB2777); }
+.tone-teal { background: linear-gradient(135deg, #5EEAD4, #0891B2); }
+.tone-amber { background: linear-gradient(135deg, #FCD34D, #F59E0B); }
+.tone-slate { background: linear-gradient(135deg, #94A3B8, #475569); }
 .agent-meta {
   min-width: 0;
   flex: 1;

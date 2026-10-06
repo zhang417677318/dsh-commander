@@ -8,5 +8,7 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
     css: true,
+    // e2e 由 Playwright 跑，不能让 vitest 也收进来
+    exclude: ['node_modules/**', 'dist/**', 'e2e/**'],
   },
 })

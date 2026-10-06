@@ -363,3 +363,47 @@
     display: none;
   }
 }
+
+/* 16:9 桌面（900px 高）也必须一屏放下三条消息 */
+@media (min-width: 1121px) and (max-height: 960px) {
+  .banner {
+    padding: 10px 20px;
+    gap: 14px;
+  }
+  .av-74 {
+    width: 58px;
+    height: 58px;
+    border-radius: 17px;
+  }
+  .banner-title h2 {
+    font-size: var(--fs-17);
+  }
+  .banner-copy p {
+    margin-top: 5px;
+    font-size: var(--fs-13);
+    line-height: 1.5;
+  }
+  .flow {
+    padding: 7px 12px;
+    margin-top: 7px;
+  }
+  .thread {
+    gap: 8px;
+    padding: 10px 20px 4px;
+  }
+  .msg-head {
+    margin-bottom: 4px;
+  }
+  .bubble {
+    padding: 10px 15px;
+  }
+  .taskcard {
+    margin-top: 10px;
+  }
+  .task-row {
+    padding: 7px 15px;
+  }
+  .taskcard-head {
+    padding: 8px 15px;
+  }
+}
