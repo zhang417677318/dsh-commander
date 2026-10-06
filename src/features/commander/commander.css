@@ -164,6 +164,200 @@
   }
 }
 
+.thread {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px 24px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.5);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-2);
+  scrollbar-width: thin;
+}
+.thread::-webkit-scrollbar {
+  width: 8px;
+}
+.thread::-webkit-scrollbar-thumb {
+  background: rgba(13, 80, 96, .14);
+  border-radius: var(--r-full);
+}
+
+.msg {
+  display: flex;
+  gap: 12px;
+  max-width: 100%;
+}
+.msg-body {
+  min-width: 0;
+  max-width: min(680px, 86%);
+}
+.msg-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 5px;
+}
+.msg-head strong {
+  font-size: var(--fs-13);
+  font-weight: 600;
+}
+.msg-head time {
+  margin-left: 2px;
+  font-size: var(--fs-11);
+  color: var(--ink-4);
+}
+.bubble {
+  padding: 11px 16px;
+  border-radius: var(--r-md);
+  font-size: var(--fs-14);
+  background: rgba(255, 255, 255, .9);
+  border: 1px solid var(--hair);
+  box-shadow: var(--sh-1);
+  color: var(--ink-2);
+}
+.msg:not(.me) .bubble {
+  background: rgba(255, 255, 255, .96);
+  border-color: var(--line);
+}
+.msg.me {
+  flex-direction: row-reverse;
+}
+.msg.me .msg-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.msg.me .msg-head {
+  flex-direction: row-reverse;
+}
+.msg.me .bubble {
+  background: linear-gradient(135deg, rgba(34, 211, 238, .16), rgba(8, 145, 178, .14));
+  border-color: rgba(34, 211, 238, .35);
+  color: var(--ink);
+}
+.tag-sm {
+  height: 21px;
+  padding: 0 9px;
+}
+
+.taskcard {
+  margin-top: 12px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  width: clamp(300px, 44vw, 520px);
+  max-width: 100%;
+  background: rgba(255, 255, 255, .78);
+  border: 1px solid var(--hair);
+  box-shadow: var(--sh-1);
+}
+.taskcard-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .6);
+}
+.taskcard-head h4 {
+  font-size: var(--fs-12);
+  font-weight: 600;
+  color: var(--ink-2);
+  letter-spacing: .02em;
+}
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px 16px;
+  transition: background var(--dur) var(--ease);
+}
+.task-row + .task-row {
+  border-top: 1px solid var(--line);
+}
+.task-row:hover {
+  background: rgba(255, 255, 255, .7);
+}
+.task-idx {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: #fff;
+  background: var(--grad-brand);
+}
+.task-row:nth-child(2) .task-idx {
+  background: linear-gradient(135deg, #34D399, #0E7490);
+}
+.task-row:nth-child(3) .task-idx {
+  background: linear-gradient(135deg, #A5B4FC, #0891B2);
+}
+.task-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  flex: 0 0 auto;
+  background: rgba(34, 211, 238, .12);
+  color: var(--primary-600);
+}
+.task-text {
+  min-width: 0;
+  flex: 1;
+}
+.task-text strong {
+  display: block;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--ink);
+}
+.task-text span {
+  display: block;
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+.task-state {
+  flex: 0 0 auto;
+  font-size: var(--fs-11);
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.task-state::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.st-run {
+  color: var(--primary-600);
+  background: rgba(34, 211, 238, .15);
+}
+.st-wait {
+  color: #B45309;
+  background: rgba(245, 158, 11, .14);
+}
+.st-done {
+  color: #15803D;
+  background: rgba(22, 163, 74, .14);
+}
+
 @media (max-width: 1360px) {
   .banner-slogan {
     display: none;
