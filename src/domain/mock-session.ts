@@ -1,56 +1,16 @@
 import type { Agent, CommanderSession, LogEntry, Message } from './types'
 import type { SessionSource } from './session-source'
+import { TEAM } from './seed/agents'
 
-const AGENTS: Agent[] = [
-  {
-    id: 'w-01',
-    name: '前端工程师',
-    role: 'React / Vue / 小程序开发',
-    skills: ['代码生成', '组件拆分'],
-    model: 'deepseek-flash',
-    status: 'online',
-  },
-  {
-    id: 'w-02',
-    name: '后端工程师',
-    role: 'Java / Python / Node.js',
-    skills: ['接口设计', '数据库'],
-    model: 'deepseek-flash',
-    status: 'online',
-  },
-  {
-    id: 'w-03',
-    name: 'UI 设计师',
-    role: '界面设计 / 交互设计',
-    skills: ['视觉规范', '配色系统'],
-    model: 'deepseek-flash',
-    status: 'online',
-  },
-  {
-    id: 'w-04',
-    name: '测试工程师',
-    role: '功能测试 / 自动化测试',
-    skills: ['用例生成', '兼容性检查'],
-    model: 'deepseek-flash',
-    status: 'online',
-  },
-  {
-    id: 'w-05',
-    name: '运维工程师',
-    role: '服务器 / Docker / 部署',
-    skills: ['容器编排', '日志排查'],
-    model: 'deepseek-flash',
-    status: 'idle',
-  },
-  {
-    id: 'w-06',
-    name: '文案工程师',
-    role: '技术文档 / 内容生成',
-    skills: ['小红书种草', '产品文档'],
-    model: 'deepseek-flash',
-    status: 'idle',
-  },
-]
+/** 工作台侧栏只需要基础字段，从统一名册里裁出来即可。 */
+const AGENTS: Agent[] = TEAM.map(({ id, name, role, skills, model, status }) => ({
+  id,
+  name,
+  role,
+  skills,
+  model,
+  status,
+}))
 
 const SEED_MESSAGES: Message[] = [
   {

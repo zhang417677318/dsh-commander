@@ -6,6 +6,7 @@ import Composer from '../composer/Composer'
 import AgentRail from '../agents/AgentRail'
 import LiveLog from '../agents/LiveLog'
 import './workbench.css'
+import '../../styles/layout.css'
 
 export interface WorkbenchPageProps {
   source: SessionSource
@@ -17,7 +18,7 @@ export function WorkbenchPage({ source }: WorkbenchPageProps) {
   if (status === 'loading') {
     return (
       <div className="view view--full">
-        <p className="wb-status" role="status">
+        <p className="page-status" role="status">
           正在连接指挥官…
         </p>
       </div>
@@ -27,7 +28,7 @@ export function WorkbenchPage({ source }: WorkbenchPageProps) {
   if (status === 'error' || session === null) {
     return (
       <div className="view view--full">
-        <div className="wb-error" role="alert">
+        <div className="page-error" role="alert">
           <strong>连接指挥官失败</strong>
           <p>{error?.message ?? '未知错误'}</p>
           <button className="btn-primary" type="button" onClick={retry}>

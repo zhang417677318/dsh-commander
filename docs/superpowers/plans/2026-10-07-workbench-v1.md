@@ -1299,3 +1299,59 @@ v1 验收后又追加了一步，把工作台包成真正的桌面应用。这�
 | Electron 主进程体积 | main.mjs 2.2 kB、preload.cjs 802 B |
 
 Electron 的四项覆盖：窗口能启动并渲染工作台、三个窗口控制是可用按钮而非死控件、点击最大化真的调用主进程（`isMaximized()` 返回 true 且按钮变成「还原窗口」）、窗口标题跟随视图且窗口可缩放。
+
+---
+
+## 追加：其余七个功能视图（2026-10-07）
+
+原计划的「后续计划」一节列了七个待写计划。实际执行时按用户要求直接做完，没有再单独出计划。以下记录架构决定与被砍掉的东西。
+
+**数据层：新增WorkspaceSource**
+
+原有的 `SessionSource` 只服务工作台。七个新视图共用 `src/domain/workspace.ts` 的 `WorkspaceSource`，一个 `load()` 返回 `WorkspaceData`：
+
+```
+team · tasks · documents · knowledgeCategories · plugins
+projects · milestones · deliverables · activity · files · storage · settings
+```
+
+`MockWorkspaceSource` 从 `src/domain/seed/workspace-seed.ts` 读取，`useWorkspace` 提供 loading / ready / error 三态，七个页面共用一个 `WorkspaceGate` 外壳，三态处理不重复实现。
+
+**名册收敛**
+
+智能体数据原来只存在于 `mock-session.ts`。新增 `src/domain/seed/agents.ts` 的 `TEAM` 作为唯一来源，工作台侧栏从中裁出基础字段，团队页直接用带统计与任务的富字段。同一个人的名字和技能不会在两处各写一遍。
+
+**新增文件（22 个）**
+
+| 类别 | 文件 |
+|---|---|
+| 领域 | `workspace.ts`、`mock-workspace.ts`、`seed/agents.ts`、`seed/workspace-seed.ts` |
+| Hook | `useWorkspace.ts` |
+| 外壳 | `app/WorkspaceGate.tsx`、`styles/layout.css` |
+| 页面 | `features/team/TeamPage.tsx`、`tasks/TasksPage.tsx`、`knowledge/KnowledgePage.tsx`、`market/MarketPage.tsx`、`projects/ProjectsPage.tsx`、`files/FilesPage.tsx`、`settings/SettingsPage.tsx` |
+| 测试 | 上述每个模块对应的 8 个 `*.test.*` |
+
+**执行中修掉的真问题**
+
+1. **`aria-current={false}` 会渲染成字面量 `"false"`**：React 对 `aria-*` 属性不做布尔省略。知识库与设置的侧栏导航原本这样写，测试断言「非激活项没有该属性」直接失败。改成 `cond ? 'true' : undefined`。
+2. **`role="switch"` 用错了属性**：原本写 `aria-pressed`，switch 语义要求 `aria-checked`，否则屏幕阅读器读不出开关状态。CSS 选择器同步改为 `.sw[aria-checked='true']`。
+3. **任务卡状态文案串台**：三元表达式兜底成了「已归档」，导致「进行中」的任务也显示已归档。改为只在 `lane === 'done'` 时显示。
+4. **硬编码的派生数据**：「3 个智能体在跑」是写死的，改为从进行中任务的 assignee 去重计数。
+5. **知识库筛选是假的**：原先非「全部」分类返回 `documents.slice(0, 2)`，与分类计数对不上。改为给每份文档加 `categoryId`，分类计数由清单派生，并补了空态文案。
+6. **CSS 注入顺序**：`layout.css` 在 `App.tsx` 里最后导入，会覆盖各功能自己的同名选择器（当时只有 `.bar` 冲突）。共享基元统一放 layout.css，功能样式不再重复定义同名类。
+
+**这一轮砍掉的东西（有意为之）**
+
+- 「新建智能体 / 上传文档 / 新建项目」等按钮目前是视觉占位，没有接入真实表单。数据层是只读的，写操作需要先扩 `WorkspaceSource` 接口。
+- 设置页只做单分类展示（不是设计稿里的三组全列），因为分类导航是真的、切换有实际意义。
+- 列表视图（任务中心的「列表」）是只读表格，没有排序与分页。
+- 智能体头像仍是统一的内联 SVG，没有各角色区分形象。
+
+**本轮的验收结果**
+
+| 检查 | 结果 |
+|---|---|
+| `pnpm typecheck` | 通过 |
+| `pnpm test` | 19 个文件 / 83 个用例全过（新增 37 个） |
+| `pnpm e2e` | 17 项全过（浏览器 12 + Electron 4 + 路由 1），新增「八个视图各自渲染」与「遍历八个视图不报错」 |
+| 工作台视觉基线 | CSS 重组后有一次亚像素级偏移，已重新生成并复跑确认稳定 |

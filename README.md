@@ -1,6 +1,6 @@
 # AI 指挥官工作台
 
-多智能体协作的桌面端开发工作台。当前进度：v1 工作台首屏 + Electron 桌面外壳。
+多智能体协作的桌面端开发工作台。八个功能视图全部实现，Electron 桌面外壳可运行。
 
 ## 跑成桌面应用
 
@@ -82,5 +82,26 @@ pnpm start
 
 ## 架构接缝
 
-UI 与数据完全解耦：所有会话数据来自 `src/domain/session-source.ts` 的 `SessionSource` 接口。
-v1 只实现了 `MockSessionSource`；将来接 dsh 本地 Host 时新增 `HostSessionSource` 即可，组件层不需要改动。
+UI 与数据完全解耦，两个接口分别覆盖工作台与其余七个视图：
+
+| 接口 | 位置 | 提供什么 | v1 实现 |
+|---|---|---|---|
+| `SessionSource` | `src/domain/session-source.ts` | 指挥官会话：名册、消息、状态流、执行日志 | `MockSessionSource` |
+| `WorkspaceSource` | `src/domain/workspace.ts` | 团队 / 任务 / 知识库 / 插件 / 项目 / 文件 / 设置 | `MockWorkspaceSource` |
+
+将来接 dsh 本地 Host 时，只要新增 `HostSessionSource` 与 `HostWorkspaceSource` 并在 `src/App.tsx` 里换掉实例，**组件层一行都不用改**。
+
+名册数据只有一份：`src/domain/seed/agents.ts` 的 `TEAM` 同时供工作台侧栏与「我的团队」页面使用，不会出现同一个人的信息在两个文件里各写一遍。
+
+## 已实现的视图
+
+| 视图 | 主要交互 |
+|---|---|
+| 工作台 | 发送消息、@ 选择智能体、键盘 Enter 发送 / Shift+Enter 换行 |
+| 我的团队 | 按分类筛选、查看任务负载与进度 |
+| 任务中心 | 看板 / 列表视图切换 |
+| 知识库 | 分类筛选（含空态）、索引状态 |
+| 插件市场 | 分类筛选、安装 / 卸载切换 |
+| 项目管理 | 项目进度、里程碑时间线、交付物与动态 |
+| 文件管理 | 存储占用分色图例、文件表格 |
+| 设置 | 分类导航、开关、分段选项、未保存标记与恢复默认 |
