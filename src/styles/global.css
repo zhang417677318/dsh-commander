@@ -75,6 +75,16 @@ textarea {
   border: 0;
 }
 
+/* 玻璃面板：全站一致的单一面材质 */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.5);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-2);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
