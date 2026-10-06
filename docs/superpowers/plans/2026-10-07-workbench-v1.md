@@ -1222,3 +1222,40 @@ git commit -m "feat: compose workbench page with loading and error states"
 **2. Placeholder scan**：无 TBD / TODO / "稍后补充"。"实现 X" 的步骤均给出了结构要点与固定文案，数据取自设计稿，没有留空。
 
 **3. Type consistency**：`SessionSource` 的 `load/send`（Task 3）→ `useCommanderSession` 的 `send`（Task 4）→ `WorkbenchPage` 的 `source` prop（Task 10）签名一致；`BreakdownItem.state` 的三值 `done|running|queued`（Task 3）与 `TaskBreakdownCard` 的状态映射（Task 7）一致；`Agent.status` 的 `online|idle|running`（Task 3）与 `AgentCard` 的文案映射（Task 9）一致；`ViewId` 联合类型（Task 5）与 `readView` 白名单一致。
+
+---
+
+## 执行记录（2026-10-07）
+
+计划已按 10 个任务全部执行完毕，分支 `feat/workbench-v1`。执行过程中共 12 处与原文不同，逐条记录原因，后续计划不要重蹈。
+
+**环境**
+
+1. **Node 版本**：本机 `node` 在 PATH 上解析到微信开发者工具自带的 v16，跑不了 Vite。实际使用 `F:\nodejs\node.exe`（v22.20.0）。所有命令前需 `export PATH="F:/nodejs:$PATH"`（PowerShell 为 `$env:PATH = 'F:\nodejs;' + $env:PATH`）。`package.json` 已加 `engines.node >= 20`。
+2. **依赖实际版本**：安装时解析到 vite 8.3.2 / vitest 5.0.3 / typescript 7.0.2 / eslint 10.12.0，均高于计划书写时的预期。TS 7 的严格度带来下面第 3 条。
+
+**任务内偏差**
+
+3. **Task 1 不引入 CSS**：原文让 `App.tsx` 在 Task 1 就 `import './styles/tokens.css'`，但这两个文件属于 Task 2，Vite 会因找不到模块而失败。改为 Task 2 一并创建并接入。
+4. **新增 `src/vite-env.d.ts`**：TS 7 对 CSS 副作用导入报 `TS2882`，需要 `/// <reference types="vite/client" />` 声明。计划里漏了这一步。
+5. **`vite.config.ts` 用 `vitest/config` 的 `defineConfig`**：从 `vite` 导入时 `test` 字段没有类型。
+6. **vitest 必须排除 e2e**：默认 include 会收进 `e2e/*.spec.ts`，导致 vitest 去跑 Playwright 的用例并报文件级失败。已在 `test.exclude` 显式排除。
+7. **`CommanderSession` 增加 `log: LogEntry[]`**：原文 Task 10 要渲染 `LiveLog`，但 Task 3 的会话类型里没有日志字段，任务无法闭环。同时新增 `src/domain/defaults.ts`，把指挥官名称、模型、问候语、用户名收敛成一份常量，避免 UI 与 mock 各写一遍。
+8. **`useCommanderSession` 增加 `retry()`**：原文 Task 10 要求错误态有重试按钮，但 Task 4 的 Hook 没有暴露重试入口。
+9. **Hook 的数据源必须稳定**：`renderHook(() => useCommanderSession(new MockSessionSource()))` 会因每次渲染新建实例而无限重新加载。测试改为在 `renderHook` 外创建实例；`App.tsx` 用 `useMemo` 固定实例。调用方后续也要遵守这条。
+10. **测试里不能解构 `load`**：`const { load } = new MockSessionSource()` 会丢失 `this` 绑定，运行时报 `Cannot read properties of undefined (reading 'wait')`。已改为 `source.load()`。
+11. **`StatusFlow` 用 `aria-label` 表达状态**：ARIA 的 `listitem` 不做 name-from-content 计算，`toHaveAccessibleName` 拿到空串。改为每个 `<li>` 显式带 `aria-label="任务分析，已完成"`。
+12. **新增 `src/app/icons.tsx`**：八个导航图标内联进 `Sidebar.tsx` 会把文件撑到 120 行以上，抽成独立模块。
+13. **新增 `src/features/agents/categories.ts`**：`categoryOf` 原本在 `AgentRail.tsx` 里，但 `AgentCard` 也需要它来决定身份色，抽出来避免循环依赖；`AgentRail` 保留 re-export 以免破坏测试导入。
+14. **Playwright 需要 `baseURL`**：`page.goto('/#workbench')` 依赖 `use.baseURL`，否则 URL 无效。
+15. **视觉基线窗口**：截图在 1600×900（真 16:9）生成。原设计稿的紧凑断点分散在拆分后的三个 CSS 文件里，第一次跑 e2e 时第三条消息被挤出可视区，已在 `commander.css` / `composer.css` / `workbench.css` 各自补回 `@media (min-width:1121px) and (max-height:960px)` 规则。
+
+**验收结果**
+
+| 检查 | 结果 |
+|---|---|
+| `pnpm typecheck` | 通过，无输出 |
+| `pnpm test` | 10 个文件 / 42 个用例全过 |
+| `pnpm build` | 通过，JS 168.13 kB（gzip 53.53 kB）、CSS 21.75 kB（gzip 5.13 kB） |
+| `pnpm e2e` | 4 项全过，视觉基线 `e2e/workbench.spec.ts-snapshots/workbench-1600x900-win32.png` 稳定 |
+| 对比度守卫 | `src/theme/contrast.test.ts` 5 项全过，令牌改动会立刻报警 |
