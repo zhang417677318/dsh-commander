@@ -262,6 +262,14 @@
   background: rgba(255, 255, 255, .5);
   backdrop-filter: blur(var(--blur)) saturate(1.4);
   -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4);
+  /* 无边框窗口：顶栏是拖动区，交互控件必须排除在外 */
+  -webkit-app-region: drag;
+}
+.topbar .search,
+.topbar .icon-btn,
+.topbar .plan-pill,
+.topbar .win-btn {
+  -webkit-app-region: no-drag;
 }
 .search {
   display: flex;
@@ -365,9 +373,21 @@
   background: rgba(255, 255, 255, .9);
   color: var(--ink);
 }
+.win-btn:disabled {
+  opacity: .45;
+  cursor: default;
+}
+.win-btn:disabled:hover {
+  background: none;
+  color: var(--ink-3);
+}
 .win-btn-close:hover {
   background: #EF4444;
   color: #fff;
+}
+.win-btn-close:disabled:hover {
+  background: none;
+  color: var(--ink-3);
 }
 
 .content {

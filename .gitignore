@@ -5,3 +5,4 @@ test-results
 *.local
 *.log
 *.tsbuildinfo
+electron/dist

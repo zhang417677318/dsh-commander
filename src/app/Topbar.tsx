@@ -1,4 +1,33 @@
+import { useEffect, useState } from 'react'
+import { desktopBridge, type DesktopBridge } from './desktop'
+
+/** 订阅窗口最大化状态，让按钮在「最大化」和「还原」之间切换。 */
+function useMaximized(bridge: DesktopBridge | null): boolean {
+  const [maximized, setMaximized] = useState(false)
+
+  useEffect(() => {
+    if (!bridge) {
+      setMaximized(false)
+      return
+    }
+    let alive = true
+    void bridge.isMaximized().then((value) => {
+      if (alive) setMaximized(value)
+    })
+    const unsubscribe = bridge.onMaximizedChange(setMaximized)
+    return () => {
+      alive = false
+      unsubscribe()
+    }
+  }, [bridge])
+
+  return maximized
+}
+
 export function Topbar() {
+  const bridge = desktopBridge()
+  const maximized = useMaximized(bridge)
+
   return (
     <header className="topbar">
       <div className="search">
@@ -81,22 +110,47 @@ export function Topbar() {
           专业版
         </button>
 
-        <div className="win-controls" aria-hidden="true">
-          <span className="win-btn">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+        <div className="win-controls" role="group" aria-label="窗口控制">
+          <button
+            className="win-btn"
+            type="button"
+            aria-label="最小化"
+            disabled={bridge === null}
+            onClick={() => bridge?.minimize()}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
               <path d="M5 12h14" />
             </svg>
-          </span>
-          <span className="win-btn">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-              <rect x="5" y="5" width="14" height="14" rx="1.5" />
-            </svg>
-          </span>
-          <span className="win-btn win-btn-close">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+          </button>
+          <button
+            className="win-btn"
+            type="button"
+            aria-label={maximized ? '还原窗口' : '最大化'}
+            disabled={bridge === null}
+            onClick={() => bridge?.toggleMaximize()}
+          >
+            {maximized ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+                <rect x="4.5" y="8" width="11.5" height="11.5" rx="1.5" />
+                <path d="M8.5 8V5.5A1.5 1.5 0 0 1 10 4h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18 15h-2" />
+              </svg>
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+                <rect x="5" y="5" width="14" height="14" rx="1.5" />
+              </svg>
+            )}
+          </button>
+          <button
+            className="win-btn win-btn-close"
+            type="button"
+            aria-label="关闭窗口"
+            disabled={bridge === null}
+            onClick={() => bridge?.close()}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
-          </span>
+          </button>
         </div>
       </div>
     </header>

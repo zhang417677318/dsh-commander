@@ -1,6 +1,38 @@
 # AI 指挥官工作台
 
-多智能体协作的桌面端开发工作台。当前进度：v1 工作台首屏。
+多智能体协作的桌面端开发工作台。当前进度：v1 工作台首屏 + Electron 桌面外壳。
+
+## 跑成桌面应用
+
+```powershell
+$env:PATH = 'F:\nodejs;' + $env:PATH
+cd F:\dsh-commander
+pnpm dev:desktop
+```
+
+这条命令会依次做三件事：编译 Electron 主进程 → 起 Vite → 拉起 Electron 窗口。改前端代码会热更新，改 `electron/` 下的代码需要重跑。
+
+跑生产版本（先构建再启动，加载 `dist/` 而不是 dev server）：
+
+```powershell
+pnpm desktop
+```
+
+> **首次安装注意**：Electron 的 postinstall 要从 GitHub releases 下载约 245 MB 的运行时。
+> 国内直连会 `fetch failed`，先设镜像再装：
+>
+> ```powershell
+> $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+> pnpm install
+> ```
+
+### 桌面外壳做了什么
+
+- **无边框窗口**：`frame: false`，窗口控制（最小化 / 最大化 / 关闭）由界面里的三个按钮驱动，通过 IPC 打通主进程。顶栏是拖动区（`-webkit-app-region: drag`），输入框和按钮排除了拖动。
+- **安全默认值**：`contextIsolation: true`、`nodeIntegration: false`、`sandbox: true`。preload 只经 `contextBridge` 暴露一个极小的 `window.dshDesktop`，不把 `ipcRenderer` 本体交给渲染层。
+- **外链走系统浏览器**：`setWindowOpenHandler` 拒绝应用内开新窗口。
+- **优雅降级**：浏览器里没有 `window.dshDesktop`，三个窗口控制自动变成禁用态，而不是留一个点了没反应的假按钮。
+- **窗口标题跟随视图**：`document.title` 会被 Electron 当作窗口标题，切换视图时标题同步变化。
 
 ## 跑起来
 
@@ -27,13 +59,16 @@ pnpm start
 
 | 命令 | 作用 |
 |---|---|
+| `pnpm dev:desktop` | 开发模式启动桌面应用（Vite + Electron） |
+| `pnpm desktop` | 构建后启动桌面应用（生产模式） |
 | `pnpm start` | 启动开发服务器并打开浏览器 |
 | `pnpm dev` | 只启动开发服务器 |
+| `pnpm build:electron` | 只编译 Electron 主进程与 preload |
 | `pnpm test` | 单元与组件测试（vitest） |
 | `pnpm test:watch` | 测试监听模式 |
 | `pnpm typecheck` | 类型检查 |
-| `pnpm build` | 生产构建到 `dist/` |
-| `pnpm e2e` | Playwright 端到端 + 视觉基线 |
+| `pnpm build` | 生产构建：Web 产物到 `dist/`，Electron 产物到 `electron/dist/` |
+| `pnpm e2e` | Playwright 端到端（浏览器 4 项 + Electron 4 项）+ 视觉基线 |
 
 首次跑 e2e 需要下载浏览器：`pnpm exec playwright install chromium`。
 

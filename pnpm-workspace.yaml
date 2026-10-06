@@ -1,0 +1,11 @@
+# pnpm 11 起，安装脚本白名单等设置的家在这里，不再读 package.json 的 pnpm 字段。
+# 键名是 allowBuilds（旧文档里的 onlyBuiltDependencies 已不生效）。
+packages:
+  - .
+
+allowBuilds:
+  # electron 的 postinstall 负责下载运行时二进制（约 245 MB）。
+  # 国内直连 GitHub releases 会 fetch failed，需要先设镜像：
+  #   $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+  electron: true
+  esbuild: true
