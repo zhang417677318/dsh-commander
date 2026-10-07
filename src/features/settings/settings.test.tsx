@@ -15,7 +15,7 @@ test('the group navigation lists every settings group including 模型', async (
 
   const nav = screen.getByRole('navigation', { name: '设置分类' })
   const buttons = [...nav.querySelectorAll('button')].map((button) => button.textContent)
-  expect(buttons).toEqual(['账户与资料', '通用', '模型', '智能体默认值'])
+  expect(buttons).toEqual(['账户与资料', '通用', '模型', 'Agent 预设', '智能体默认值'])
   expect(nav.querySelector('button')).toHaveAttribute('aria-current', 'true')
 })
 

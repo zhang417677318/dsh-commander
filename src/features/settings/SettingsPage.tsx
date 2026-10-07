@@ -2,6 +2,7 @@ import { useState } from 'react'
 import WorkspaceGate from '../../app/WorkspaceGate'
 import ModelsPanel from './ModelsPanel'
 import AgentDefaultsPanel from './AgentDefaultsPanel'
+import AgentPresetPanel from './AgentPresetPanel'
 import type { SettingsGroup, SettingsRow, WorkspaceData, WorkspaceSource } from '../../domain/workspace'
 import type { AgentDefaultModel } from '../../domain/models'
 
@@ -89,6 +90,7 @@ function SettingsBody({ data }: { data: WorkspaceData }) {
   const nav: NavEntry[] = [
     ...groups.slice(0, 2).map((group) => ({ id: group.id, title: group.title })),
     { id: 'models', title: '模型' },
+    { id: 'presets', title: 'Agent 预设' },
     ...groups.slice(2).map((group) => ({ id: group.id, title: group.title })),
   ]
 
@@ -158,6 +160,17 @@ function SettingsBody({ data }: { data: WorkspaceData }) {
                   <span className="aside">按提供商分行，一次展开一张</span>
                 </div>
                 <ModelsPanel providers={data.providers} />
+              </div>
+            ) : active?.id === 'presets' ? (
+              <div className="glass card">
+                <div className="card-head">
+                  <h3>Agent 预设</h3>
+                </div>
+                <AgentPresetPanel
+                  presets={data.agentPresets}
+                  guides={data.presetGuides}
+                  defaultPresetId={data.defaultPresetId}
+                />
               </div>
             ) : active === undefined ? null : (
               <div className="glass card" key={active.id}>

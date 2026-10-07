@@ -1,5 +1,6 @@
 import type { Agent, LogEntry } from './types'
 import type { AgentDefaultModel, ModelProvider } from './models'
+import type { AgentPreset, PresetGuide } from './presets'
 
 /* ------------------------------- 我的团队 ------------------------------- */
 
@@ -171,6 +172,10 @@ export interface WorkspaceData {
   /** 模型提供商目录，对应 dsh 原生的 Models 设置页 */
   providers: ModelProvider[]
   agentDefaultModel: AgentDefaultModel
+  /** Agent 预设，对应 dsh 的 agent-preset-registry */
+  agentPresets: AgentPreset[]
+  defaultPresetId: string
+  presetGuides: Record<string, PresetGuide>
   tasks: Task[]
   documents: KnowledgeDoc[]
   knowledgeCategories: KnowledgeCategory[]

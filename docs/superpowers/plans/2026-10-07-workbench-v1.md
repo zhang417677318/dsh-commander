@@ -1434,3 +1434,44 @@ Electron 与打包产物测试会拉起真实应用，3 worker 并行时出现�
 | `pnpm typecheck` | 通过 |
 | `pnpm test` | 19 个文件 / 93 个用例全过（设置页从 5 个用例扩到 15 个） |
 | `pnpm e2e` | 19 项全过 |
+
+---
+
+## 追加：Agent 预设页（2026-10-07）
+
+照 dsh 原生设置页的「Agent 预设」1:1 实现。
+
+**文案来源**
+
+没有照截图抄。页面文案与帮助内容逐字取自 `dsh-client-ui-agent-preset/lib/client.js` 里的 `zh` 与 `guideZh` 文案表：分组名（内置/自定义）、说明引导语、四个预设的名称与描述、`模式说明`/`如何使用`/`复制`/`已复制`/`设为新任务默认`/`查看配置`/`新任务默认`/`让 Agent 帮我创建预设模式`，以及标准/PTC/极简/创造四份帮助正文（含 `###` 小标题与 `>` 引用格式）。
+
+**行为来源**
+
+取自该包 README：卡片分组与默认项高亮、点击卡片选择、每张卡片提供「查看配置」以只读 YAML 打开声明的插件列表、Escape 只关闭查看器并把焦点还给卡片、各页签保留各自的滚动位置、帮助不改变新任务默认值、自定义分组保留创造入口。
+
+**新增文件**
+
+| 文件 | 职责 |
+|---|---|
+| `src/domain/presets.ts` | `AgentPreset` / `PresetGuide` 类型 |
+| `src/domain/seed/presets-seed.ts` | 四个内置预设 + 四份帮助文案 + 默认预设 id |
+| `src/features/settings/AgentPresetPanel.tsx` | 卡片、帮助对话框、配置查看器 |
+| `src/features/settings/presets.css` | 上述样式 |
+
+`WorkspaceData` 增加 `agentPresets` / `defaultPresetId` / `presetGuides`，设置导航变为「账户与资料 / 通用 / 模型 / Agent 预设 / 智能体默认值」。
+
+**踩到的坑**
+
+对话框最初只遮住卡片区域、盖不住整屏。原因是祖先 `.glass` 的 `backdrop-filter` 会为 `position: fixed` 的后代创建包含块——CSS 规范行为，不是 bug。修法是把两个对话框 `createPortal` 到 `document.body`。这个坑值得记住：只要祖先带了 `filter` / `backdrop-filter` / `transform`，`position: fixed` 就不再相对视口。
+
+**一处做不了 1:1 的地方**
+
+「查看配置」展示的插件条目列表是**重建**的。内置预设的声明在 bundle 内，`app.asar` 里读不到（我把 asar 全量列表翻过一遍，只有 registry / preset / client-ui 三个包和它们的 skills，没有预设声明文件）。YAML 里的包名取自 dsh 运行时实际存在的包，条目按各预设帮助文本描述的能力拼装。真实声明到手后替换 seed 里的 `composition` 即可。
+
+**验收结果**
+
+| 检查 | 结果 |
+|---|---|
+| `pnpm typecheck` | 通过 |
+| `pnpm test` | 20 个文件 / 103 个用例全过（预设页新增 10 个） |
+| `pnpm e2e` | 19 项全过 |

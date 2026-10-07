@@ -14,6 +14,7 @@ import type {
 import type { LogEntry } from '../types'
 import { TEAM } from './agents'
 import { AGENT_DEFAULT_MODEL, MODEL_PROVIDERS } from './models-seed'
+import { AGENT_PRESETS, DEFAULT_PRESET_ID, PRESET_GUIDES } from './presets-seed'
 
 const TASKS: Task[] = [
   {
@@ -226,6 +227,9 @@ export const WORKSPACE_SEED: WorkspaceData = {
   team: TEAM,
   providers: MODEL_PROVIDERS,
   agentDefaultModel: AGENT_DEFAULT_MODEL,
+  agentPresets: AGENT_PRESETS,
+  defaultPresetId: DEFAULT_PRESET_ID,
+  presetGuides: PRESET_GUIDES,
   tasks: TASKS,
   documents: DOCUMENTS,
   knowledgeCategories: KNOWLEDGE_CATEGORIES,
