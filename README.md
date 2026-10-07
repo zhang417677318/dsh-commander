@@ -18,6 +18,29 @@ pnpm dev:desktop
 pnpm desktop
 ```
 
+## 打成 exe
+
+```powershell
+pnpm app:dir        # 免安装目录，产物在 release\win-unpacked\AI 编程助手.exe
+pnpm app:installer  # NSIS 安装包，产物在 release\
+```
+
+`app:dir` 出来的就是一个可以直接双击的 exe，整个 `win-unpacked` 目录拷到别的机器上也能跑。
+
+> **国内打包必须先设镜像和代理**，否则 electron-builder 会卡在从 GitHub 下载 Electron 发行包（报 `connect ETIMEDOUT ...:443`）：
+>
+> ```powershell
+> $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
+> $env:ELECTRON_BUILDER_BINARIES_MIRROR = 'https://npmmirror.com/mirrors/electron-builder-binaries/'
+> $env:HTTPS_PROXY = 'http://127.0.0.1:7897'   # 按你本机代理端口改
+> $env:HTTP_PROXY  = 'http://127.0.0.1:7897'
+> pnpm app:dir
+> ```
+
+> **重新打包前必须先关掉正在运行的 exe**，否则 electron-builder 删不掉旧目录，报 `EBUSY: resource busy or locked`。
+
+打包另一个坑写在 `vite.config.ts` 里：**`base` 必须是 `'./'`**。默认的绝对路径在 Electron 的 `file://` 下会解析到盘符根目录（变成 `file:///F:/assets/...`），开发模式一切正常、装完却是白屏。`e2e/packaged.spec.ts` 专门守这条。
+
 > **首次安装注意**：Electron 的 postinstall 要从 GitHub releases 下载约 245 MB 的运行时。
 > 国内直连会 `fetch failed`，先设镜像再装：
 >
@@ -61,6 +84,8 @@ pnpm start
 |---|---|
 | `pnpm dev:desktop` | 开发模式启动桌面应用（Vite + Electron） |
 | `pnpm desktop` | 构建后启动桌面应用（生产模式） |
+| `pnpm app:dir` | 打包成免安装的 exe 目录 |
+| `pnpm app:installer` | 打包成 NSIS 安装包 |
 | `pnpm start` | 启动开发服务器并打开浏览器 |
 | `pnpm dev` | 只启动开发服务器 |
 | `pnpm build:electron` | 只编译 Electron 主进程与 preload |
@@ -68,7 +93,7 @@ pnpm start
 | `pnpm test:watch` | 测试监听模式 |
 | `pnpm typecheck` | 类型检查 |
 | `pnpm build` | 生产构建：Web 产物到 `dist/`，Electron 产物到 `electron/dist/` |
-| `pnpm e2e` | Playwright 端到端（浏览器 4 项 + Electron 4 项）+ 视觉基线 |
+| `pnpm e2e` | Playwright 端到端 19 项（浏览器 12 + Electron 4 + 打包产物 2 + 路由穿越 1） |
 
 首次跑 e2e 需要下载浏览器：`pnpm exec playwright install chromium`。
 

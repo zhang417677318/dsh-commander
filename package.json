@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "AI 指挥官工作台 — 多智能体协作的桌面端开发工作台",
+  "author": "zhang417677318",
   "main": "electron/dist/main.mjs",
   "type": "module",
   "license": "MIT",
@@ -16,6 +17,8 @@
     "build": "tsc -b && vite build && pnpm build:electron",
     "dev:desktop": "node scripts/dev-desktop.mjs",
     "desktop": "pnpm build && electron .",
+    "app:dir": "pnpm build && electron-builder --dir",
+    "app:installer": "pnpm build && electron-builder --win nsis",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -39,6 +42,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.1.2",
     "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
     "esbuild": "^0.28.2",
     "eslint": "^10.12.0",
     "jsdom": "^30.1.2",
@@ -47,5 +51,27 @@
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"
+  },
+  "build": {
+    "appId": "com.dsh.commander",
+    "productName": "AI 编程助手",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/dist/**",
+      "dist/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
+    }
   }
 }

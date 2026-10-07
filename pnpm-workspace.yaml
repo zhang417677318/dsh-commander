@@ -8,4 +8,7 @@ allowBuilds:
   # 国内直连 GitHub releases 会 fetch failed，需要先设镜像：
   #   $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
   electron: true
+  # electron-builder 的依赖，只在构建 Squirrel 安装包时才需要。
+  # 我们走 NSIS / 免安装目录，用不到，显式标记为不构建以免 pnpm 一直报警。
+  electron-winstaller: false
   esbuild: true

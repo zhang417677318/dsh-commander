@@ -1355,3 +1355,41 @@ projects · milestones · deliverables · activity · files · storage · settin
 | `pnpm test` | 19 个文件 / 83 个用例全过（新增 37 个） |
 | `pnpm e2e` | 17 项全过（浏览器 12 + Electron 4 + 路由 1），新增「八个视图各自渲染」与「遍历八个视图不报错」 |
 | 工作台视觉基线 | CSS 重组后有一次亚像素级偏移，已重新生成并复跑确认稳定 |
+
+---
+
+## 追加：打包成 exe（2026-10-07）
+
+**配置**
+
+`package.json` 的 `build` 字段配了 electron-builder：`appId: com.dsh.commander`、`productName: AI 编程助手`、产物目录 `release/`、只打包 `electron/dist`、`dist` 与 `package.json`。两条脚本：
+
+| 命令 | 产物 |
+|---|---|
+| `pnpm app:dir` | `release/win-unpacked/AI 编程助手.exe`（免安装，可直接双击） |
+| `pnpm app:installer` | NSIS 安装包 |
+
+**踩到的四个坑**
+
+1. **打包后白屏（最重要的一个）**：Vite 默认 `base: '/'`，产物 `index.html` 用的是 `/assets/index-*.js` 这类绝对路径。Electron 用 `file://` 加载时它解析成 `file:///F:/assets/...`，直接 404。开发模式和浏览器预览都正常，只有装完是白的。判断方法：看窗口标题——渲染成功时 `document.title` 会把标题改成「工作台 · AI 编程助手」，白屏时停在 BrowserWindow 的初始标题「AI 编程助手」。修法是给 Vite 设 `base: './'`。
+2. **GitHub 下载超时**：electron-builder 打包时要从 GitHub 下 Electron 发行包，国内直连报 `connect ETIMEDOUT 20.205.243.166:443`。镜像（`ELECTRON_MIRROR`、`ELECTRON_BUILDER_BINARIES_MIRROR`）和代理（`HTTPS_PROXY` / `HTTP_PROXY`）都得给。
+3. **EBUSY 锁目录**：重新打包前必须关掉正在运行的 exe，否则删不掉 `release/win-unpacked`。
+4. **pnpm 构建脚本白名单**：新增 `electron-builder` 时它的依赖 `electron-winstaller`（只用于 Squirrel 安装包）再次触发 `ERR_PNPM_IGNORED_BUILDS`，把 `pnpm <script>` 全堵死。在 `pnpm-workspace.yaml` 的 `allowBuilds` 里显式写 `electron-winstaller: false` 表示不构建即可。
+
+**新增的守护测试**
+
+`e2e/packaged.spec.ts` —— 直接启动 `release/win-unpacked` 里的 exe，断言工作台渲染成功、窗口标题正确、除可选的 `avatar.png` 外没有任何资源请求失败。没有这条测试，上面第 1 个坑只会在双击 exe 时才发现。文件不存在时自动跳过，所以没打包的机器上 `pnpm e2e` 依然能跑。
+
+**并行度调整**
+
+Electron 与打包产物测试会拉起真实应用，3 worker 并行时出现过一次偶发失败。已把 `workers` 固定为 1，整套 19 项串行约 20 秒，两次连跑结果一致。
+
+**验收结果**
+
+| 检查 | 结果 |
+|---|---|
+| `pnpm typecheck` | 通过 |
+| `pnpm test` | 19 个文件 / 83 个用例全过 |
+| `pnpm e2e` | 19 项全过，连跑两次稳定 |
+| `pnpm app:dir` | 产出 234 MB 免安装 exe，双击可运行 |
+| 打包产物 asar | 4.95 MB，含 `dist/` 与 `electron/dist/` |
