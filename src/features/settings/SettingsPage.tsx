@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import WorkspaceGate from '../../app/WorkspaceGate'
-import type { SettingsGroup, SettingsRow, WorkspaceSource } from '../../domain/workspace'
+import ModelsPanel from './ModelsPanel'
+import AgentDefaultsPanel from './AgentDefaultsPanel'
+import type { SettingsGroup, SettingsRow, WorkspaceData, WorkspaceSource } from '../../domain/workspace'
+import type { AgentDefaultModel } from '../../domain/models'
 
 type DraftState = Record<string, string | boolean>
 
@@ -70,22 +73,48 @@ function Row({ row, draft, onChange }: {
 export function SettingsPage({ source }: { source: WorkspaceSource }) {
   return (
     <WorkspaceGate source={source} label="设置">
-      {(data) => <SettingsBody groups={data.settings} />}
+      {(data) => <SettingsBody data={data} />}
     </WorkspaceGate>
   )
 }
 
-function SettingsBody({ groups }: { groups: SettingsGroup[] }) {
-  const [activeId, setActiveId] = useState(groups[0]?.id ?? '')
-  const [draft, setDraft] = useState<DraftState>(() => initialDraft(groups))
+interface NavEntry {
+  id: string
+  title: string
+}
 
-  const active = groups.find((group) => group.id === activeId) ?? groups[0]
-  const dirty = groups.some((group) =>
+function SettingsBody({ data }: { data: WorkspaceData }) {
+  const groups: SettingsGroup[] = data.settings
+  // 「模型」不是通用的分组表单，插在「通用」之后
+  const nav: NavEntry[] = [
+    ...groups.slice(0, 2).map((group) => ({ id: group.id, title: group.title })),
+    { id: 'models', title: '模型' },
+    ...groups.slice(2).map((group) => ({ id: group.id, title: group.title })),
+  ]
+
+  const [activeId, setActiveId] = useState(nav[0]?.id ?? 'models')
+  const [draft, setDraft] = useState<DraftState>(() => initialDraft(groups))
+  const [agentDefault, setAgentDefault] = useState<AgentDefaultModel>(data.agentDefaultModel)
+
+  const active = nav.find((entry) => entry.id === activeId) ?? nav[0]
+  const activeGroup = groups.find((group) => group.id === active?.id)
+
+  const rowsDirty = groups.some((group) =>
     group.rows.some((row) => draft[row.id] !== row.value),
   )
+  const defaultDirty =
+    agentDefault.provider !== data.agentDefaultModel.provider ||
+    agentDefault.model !== data.agentDefaultModel.model ||
+    agentDefault.reasoningEffort !== data.agentDefaultModel.reasoningEffort
+  const dirty = rowsDirty || defaultDirty
 
   const update = (id: string, value: string | boolean) =>
     setDraft((current) => ({ ...current, [id]: value }))
+
+  const reset = () => {
+    setDraft(initialDraft(groups))
+    setAgentDefault(data.agentDefaultModel)
+  }
 
   return (
     <div className="view view--full">
@@ -100,7 +129,7 @@ function SettingsBody({ groups }: { groups: SettingsGroup[] }) {
               className="btn-ghost"
               type="button"
               disabled={!dirty}
-              onClick={() => setDraft(initialDraft(groups))}
+              onClick={reset}
             >
               恢复默认
             </button>
@@ -109,25 +138,40 @@ function SettingsBody({ groups }: { groups: SettingsGroup[] }) {
 
         <div className="split">
           <nav className="glass side-nav" aria-label="设置分类">
-            {groups.map((group) => (
+            {nav.map((entry) => (
               <button
-                key={group.id}
+                key={entry.id}
                 type="button"
-                aria-current={group.id === active?.id ? 'true' : undefined}
-                onClick={() => setActiveId(group.id)}
+                aria-current={entry.id === active?.id ? 'true' : undefined}
+                onClick={() => setActiveId(entry.id)}
               >
-                {group.title}
+                {entry.title}
               </button>
             ))}
           </nav>
 
           <div className="stack-col">
-            {active === undefined ? null : (
+            {active?.id === 'models' ? (
+              <div className="glass card">
+                <div className="card-head">
+                  <h3>模型</h3>
+                  <span className="aside">按提供商分行，一次展开一张</span>
+                </div>
+                <ModelsPanel providers={data.providers} />
+              </div>
+            ) : active === undefined ? null : (
               <div className="glass card" key={active.id}>
                 <div className="card-head">
                   <h3>{active.title}</h3>
                 </div>
-                {active.rows.map((row) => (
+                {active.id === 'agent-defaults' ? (
+                  <AgentDefaultsPanel
+                    providers={data.providers}
+                    value={agentDefault}
+                    onChange={setAgentDefault}
+                  />
+                ) : null}
+                {activeGroup?.rows.map((row) => (
                   <Row key={row.id} row={row} draft={draft} onChange={update} />
                 ))}
               </div>

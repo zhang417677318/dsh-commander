@@ -1,0 +1,254 @@
+.mp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mp-row {
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, .6);
+  overflow: hidden;
+}
+.mp-row-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  transition: background var(--dur) var(--ease);
+}
+.mp-row-head:hover {
+  background: #fff;
+}
+.mp-row-title {
+  min-width: 0;
+  flex: 1;
+}
+.mp-row-title strong {
+  display: block;
+  font-size: var(--fs-14);
+}
+.mp-row-title span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.mp-count {
+  white-space: nowrap;
+}
+
+/* 凭据状态点：颜色只是补充，旁边永远有文字 */
+.mp-cred {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.mp-cred-configured {
+  background: #16A34A;
+}
+.mp-cred-missing {
+  background: #DC2626;
+}
+.mp-cred-unknown {
+  background: #CBD5E1;
+}
+
+.mp-editor-wrap {
+  border-top: 1px solid var(--line);
+  padding: 4px 16px 16px;
+  background: rgba(255, 255, 255, .5);
+}
+.mp-editor {
+  display: flex;
+  flex-direction: column;
+}
+.mp-note {
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+  padding: 12px 0;
+}
+
+.mp-field {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mp-field .lb {
+  min-width: 0;
+  flex: 1;
+}
+.mp-field .lb strong {
+  display: block;
+  font-size: var(--fs-13);
+  font-weight: 500;
+}
+.mp-field .lb span {
+  display: block;
+  font-size: var(--fs-11);
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.mp-field .inp {
+  min-width: 260px;
+}
+.btn-primary-sm {
+  height: 34px;
+  padding: 0 16px;
+  font-size: var(--fs-12);
+}
+.btn-primary:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mp-custom {
+  border-bottom: 1px solid var(--line);
+}
+.mp-custom-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 0;
+  font-size: var(--fs-13);
+  color: var(--ink-2);
+}
+.mp-custom-toggle:hover {
+  color: var(--primary-600);
+}
+.mp-custom-body {
+  padding-bottom: 6px;
+}
+.mp-custom-body .mp-field:last-child {
+  border-bottom: 0;
+}
+.mp-code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--ink-3);
+}
+
+.mp-models {
+  padding-top: 14px;
+}
+.mp-models-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mp-models-head strong {
+  font-size: var(--fs-13);
+}
+.mp-reset {
+  margin-left: auto;
+}
+.mp-reset:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.mp-reset:disabled:hover {
+  background: rgba(255, 255, 255, .8);
+  color: var(--ink-2);
+  border-color: var(--hair);
+}
+
+.mp-model {
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: #fff;
+  border: 1px solid var(--line-2);
+}
+.mp-model + .mp-model {
+  margin-top: 8px;
+}
+.mp-model-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mp-model-id {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+.mp-model-name {
+  min-width: 0;
+  flex: 1;
+  max-width: none;
+}
+.mp-model-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.mp-num {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mp-num span {
+  font-size: var(--fs-11);
+  color: var(--ink-3);
+}
+.mp-num .inp {
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+}
+.mp-inputs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+}
+.mp-inputs legend {
+  font-size: var(--fs-11);
+  color: var(--ink-3);
+  padding: 0;
+  float: left;
+  margin-right: 12px;
+  line-height: 22px;
+}
+.mp-inputs label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-12);
+  color: var(--ink-2);
+}
+.mp-inputs input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  accent-color: #0891B2;
+}
+
+.mp-foot {
+  font-size: var(--fs-11);
+  color: var(--ink-3);
+  padding-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .mp-field {
+    flex-wrap: wrap;
+  }
+  .mp-field .inp {
+    min-width: 0;
+    width: 100%;
+  }
+  .mp-model-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

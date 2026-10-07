@@ -1,4 +1,5 @@
 import type { Agent, LogEntry } from './types'
+import type { AgentDefaultModel, ModelProvider } from './models'
 
 /* ------------------------------- 我的团队 ------------------------------- */
 
@@ -167,6 +168,9 @@ export interface SettingsGroup {
 
 export interface WorkspaceData {
   team: TeamMember[]
+  /** 模型提供商目录，对应 dsh 原生的 Models 设置页 */
+  providers: ModelProvider[]
+  agentDefaultModel: AgentDefaultModel
   tasks: Task[]
   documents: KnowledgeDoc[]
   knowledgeCategories: KnowledgeCategory[]

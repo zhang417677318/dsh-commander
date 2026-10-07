@@ -13,6 +13,7 @@ import type {
 } from '../workspace'
 import type { LogEntry } from '../types'
 import { TEAM } from './agents'
+import { AGENT_DEFAULT_MODEL, MODEL_PROVIDERS } from './models-seed'
 
 const TASKS: Task[] = [
   {
@@ -213,15 +214,9 @@ const SETTINGS: SettingsGroup[] = [
     ],
   },
   {
-    id: 'model',
-    title: '模型与推理',
+    id: 'agent-defaults',
+    title: '智能体默认值',
     rows: [
-      { id: 'commander-model', label: '指挥官模型', hint: '负责分析需求、拆解任务与验收', control: 'text', value: 'DeepSeek R1' },
-      {
-        id: 'effort', label: '推理强度', hint: '越高越准，token 消耗也越多', control: 'segment',
-        value: '高', options: ['低', '中', '高'],
-      },
-      { id: 'worker-model', label: '智能体默认模型', hint: '新员工卡片的初始配置', control: 'text', value: 'deepseek-flash · low' },
       { id: 'budget', label: '单任务预算上限', hint: '超出后暂停并上报指挥官', control: 'text', value: '¥2.00' },
     ],
   },
@@ -229,6 +224,8 @@ const SETTINGS: SettingsGroup[] = [
 
 export const WORKSPACE_SEED: WorkspaceData = {
   team: TEAM,
+  providers: MODEL_PROVIDERS,
+  agentDefaultModel: AGENT_DEFAULT_MODEL,
   tasks: TASKS,
   documents: DOCUMENTS,
   knowledgeCategories: KNOWLEDGE_CATEGORIES,

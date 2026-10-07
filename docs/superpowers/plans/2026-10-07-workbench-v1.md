@@ -1393,3 +1393,44 @@ Electron 与打包产物测试会拉起真实应用，3 worker 并行时出现�
 | `pnpm e2e` | 19 项全过，连跑两次稳定 |
 | `pnpm app:dir` | 产出 234 MB 免安装 exe，双击可运行 |
 | 打包产物 asar | 4.95 MB，含 `dist/` 与 `electron/dist/` |
+
+---
+
+## 追加：模型配置对齐 dsh 原生（2026-10-07）
+
+原来的「模型与推理」分组是四个平铺字段（指挥官模型 / 推理强度 / 智能体默认模型 / 单任务预算），与 dsh 原生的 Models 设置页结构完全不同。本次照原生的 schema 重做。
+
+**从 dsh 安装包里挖到的原生约定**
+
+| 来源 | 结论 |
+|---|---|
+| `dsh-client-ui-settings-models/README.zh.md` | 按提供商分行，一次展开一张卡；API 密钥只写保存；模型行可编辑 `id`/显示名/`contextWindow`/`maxTokens`/输入类型 |
+| 同上 | 「推理等级刻意不在可编辑字段之列：它是按模型的能力，提供商级的控件只可能被设成某些模型会拒绝的值」 |
+| 同上 | DeepSeek 账号路由不提供 API Key 与 Base URL 输入框；官方路由的端点占位符是 `https://api.deepseek.com/anthropic` |
+| 同上 | 第三方未声明输入类型时：优先已安装目录 → 提供商默认 → 回退文本；至少保留一种输入类型 |
+| `dsh-agent-default-model/README.zh.md` | 默认模型是 `{ provider, model, reasoningEffort? }`，写进 profile patch |
+
+**改了什么**
+
+- 新增 `src/domain/models.ts`：`ModelProvider` / `ProviderModel` / `InputModality` / `CredentialState` / `AgentDefaultModel`
+- 新增 `src/domain/seed/models-seed.ts`：三个提供商的目录与协议标签/占位符表
+- 新增 `src/features/settings/ModelsPanel.tsx` + `models.css`：提供商行、凭据状态、自定义设置折叠、模型目录编辑、恢复默认
+- 新增 `src/features/settings/AgentDefaultsPanel.tsx`：provider + model + 可选 reasoningEffort
+- `SettingsPage` 的导航由「账户与资料 / 通用 / 模型与推理」改为「账户与资料 / 通用 / **模型** / **智能体默认值**」，模型分组由专属面板渲染而不是通用表单
+- 删掉了提供商级的「推理强度」控件，改在「智能体默认值」里作为可选字段
+
+**顺带修掉的样式问题**
+
+输入框边框原本用 `--hair`（给玻璃面的白色半透明 1px），放在白卡片上等于没有边框，模型行里的数字输入框几乎不可见。`.inp` 与 `.sel` 改用 `--line-2`，`.mp-model` 改为纯白底 + `--line-2` 描边。
+
+**可访问性**
+
+每个模型行加了 `role="group"` + `aria-label="模型 <id>"`，避免同名「文本/图片」复选框在多个模型间互相干扰（这条是被测试逼出来的）。凭据状态、输入类型、恢复默认禁用态都同时有文字表达。
+
+**验收结果**
+
+| 检查 | 结果 |
+|---|---|
+| `pnpm typecheck` | 通过 |
+| `pnpm test` | 19 个文件 / 93 个用例全过（设置页从 5 个用例扩到 15 个） |
+| `pnpm e2e` | 19 项全过 |
